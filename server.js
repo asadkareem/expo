@@ -14,7 +14,7 @@ mongoose
     family: 4,
   })
   .then(() => {
-    // console.log('DB connection successful');
+    console.log('DB connection successful');
   });
 //starting the server
 const port = process.env.PORT || 3000;

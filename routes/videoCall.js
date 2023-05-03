@@ -26,7 +26,6 @@ router.post('/answer-call', (req, res) => {
 
   peer.signal(req.body.offer);
 });
-
 router.post('/connect-peers', (req, res) => {
   const peer = new SimplePeer({ wrtc: wrtc });
   const { answer } = req.body;
@@ -37,11 +36,14 @@ router.post('/connect-peers', (req, res) => {
 
   peer.on('error', (error) => {
     console.error('An error occurred:', error);
+    res.status(500).json({ message: error.message });
+  });
+
+  peer.on('signal', (data) => {
+    res.json({ answer: data });
   });
 
   peer.signal(answer);
-
-  res.sendStatus(200);
 });
 
 module.exports = router;

@@ -7,7 +7,6 @@ process.on('uncaughtException', (err) => {
 });
 //connecting to the database
 const DB = process.env.DATABASE_LOCAL;
-console.log(DB);
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -15,10 +14,10 @@ mongoose
     family: 4,
   })
   .then(() => {
-    console.log('DB connection successful');
+    // console.log('DB connection successful');
   });
-  //starting the server
-  const port = process.env.PORT || 3000;
+//starting the server
+const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });

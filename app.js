@@ -9,6 +9,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const app = express();
 
 const userRouter = require('./routes/userRoutes');
@@ -16,7 +17,7 @@ const classRouter = require('./routes/classRoutes');
 const lectureRouter = require('./routes/lectureRoutes');
 const subjectRouter = require('./routes/subjectRoutes');
 const pastPaperRouter = require('./routes/pastPaperRoutes');
-const videoCall = require('./routes/videoCall');
+const currentPaperRouter = require('./routes/currentPaperRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -32,19 +33,22 @@ if (process.env.NODE_ENV == 'development') {
   app.use(morgan('dev'));
 }
 // console.log(process.env.NODE_ENV);
-app.use(compression());
+// app.use(compression());
 // Limit requests from same API
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!',
 });
-
+app.use(
+  cors()
+);
 app.use('/api', limiter);
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
 //serving static files
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('view engine', 'ejs');
 app.use(cookieParser());
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -60,15 +64,16 @@ app.use((req, res, next) => {
   // console.log(req.cookies);
   next();
 });
-
 // 2) ****--------ROUTES---------*****
-
+app.get('/', (req, res) => {
+  res.render('index');
+});
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/classes', classRouter);
 app.use('/api/v1/subjects', subjectRouter);
 app.use('/api/v1/lectures', lectureRouter);
 app.use('/api/v1/pastPaper', pastPaperRouter);
-app.use('/api/v1/videoCall', videoCall);
+app.use('/api/v1/currentPaper', currentPaperRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
@@ -77,3 +82,4 @@ app.all('*', (req, res, next) => {
 //3)****----------error-handling--------****
 app.use(globalErrorHandler);
 module.exports = app;
+

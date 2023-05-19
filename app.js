@@ -40,15 +40,13 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!',
 });
-app.use(
-  cors()
-);
+app.use(cors());
+
 app.use('/api', limiter);
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
 //serving static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('view engine', 'ejs');
 app.use(cookieParser());
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -82,4 +80,3 @@ app.all('*', (req, res, next) => {
 //3)****----------error-handling--------****
 app.use(globalErrorHandler);
 module.exports = app;
-

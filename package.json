@@ -4,7 +4,8 @@
   "description": "expo is the learning application that allow the students to learn by watching the video lectures past papers and by askking the questionsbased on their classes and subjects",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "start:prod": "cross-env NODE_ENV=production PORT=3000 nodemon server.js"
   },
   "author": "asad kareem tsoftek",

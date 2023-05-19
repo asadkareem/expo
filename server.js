@@ -6,7 +6,7 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 //connecting to the database
-const DB = process.env.DATABASE_LOCAL;
+const DB = process.env.DATABASE_CLOUD;
 mongoose
   .connect(DB, {
     useNewUrlParser: true,

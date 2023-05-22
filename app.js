@@ -26,6 +26,9 @@ const globalErrorHandler = require('./controllers/errorController');
 // 1) ****---GLOBAL MIDDLEWARES-------****
 
 // Configration of the environment variables
+
+app.use(cors());
+app.options('*', cors());
 app.enable('trust proxy');
 dotenv.config({ path: './config.env' });
 
@@ -43,7 +46,6 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!',
 });
-app.use(cors());
 
 app.use('/api', limiter);
 // Body parser, reading data from body into req.body

@@ -14,6 +14,8 @@ const app = express();
 
 const userRouter = require('./routes/userRoutes');
 const classRouter = require('./routes/classRoutes');
+const chatRouter = require('./routes/chatRoute');
+const messageRouter = require('./routes/messageRoutes');
 const lectureRouter = require('./routes/lectureRoutes');
 const subjectRouter = require('./routes/subjectRoutes');
 const pastPaperRouter = require('./routes/pastPaperRoutes');
@@ -24,6 +26,7 @@ const globalErrorHandler = require('./controllers/errorController');
 // 1) ****---GLOBAL MIDDLEWARES-------****
 
 // Configration of the environment variables
+app.enable('trust proxy');
 dotenv.config({ path: './config.env' });
 
 // Set security HTTP headers
@@ -63,11 +66,11 @@ app.use((req, res, next) => {
   next();
 });
 // 2) ****--------ROUTES---------*****
-app.get('/', (req, res) => {
-  res.render('index');
-});
+
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/classes', classRouter);
+app.use('/api/v1/chats', chatRouter);
+app.use('/api/v1/messages', messageRouter);
 app.use('/api/v1/subjects', subjectRouter);
 app.use('/api/v1/lectures', lectureRouter);
 app.use('/api/v1/pastPaper', pastPaperRouter);

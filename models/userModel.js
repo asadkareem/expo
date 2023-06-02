@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
       message: 'passwords are not same',
     },
   },
+  subScriptionDate: {
+    type: Date,
+    default: '2023-06-02T00:00:00.000Z',
+  },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
@@ -54,7 +58,6 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
 });
-
 
 userSchema.index({ email: 1 });
 userSchema.pre('save', async function (next) {

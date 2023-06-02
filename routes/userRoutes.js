@@ -20,7 +20,7 @@ router.patch(
   userController.resizeUserPhoto,
   userController.updateMe
 );
-
+router.patch('/subScription', userController.updateSubScription);
 //routes restricted to admin
 router.use(authContoller.restrictTo('admin'));
 router.route('/').get(userController.getAllUsers);

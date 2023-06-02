@@ -40,7 +40,7 @@ process.on('SIGTERM', () => {
 const io = require('socket.io')(server, {
   pingTimeOut: 60000,
   cors: {
-    origin: 'http://localhost:3000',
+    origin: '*',
   },
 });
 
@@ -49,19 +49,24 @@ io.on('connection', (socket) => {
   //setup will take the user data from the frontend
   //we are creating a new socket where frontend will send the data
   //will join our room
+  //we will create a new room with the id of the new user data
+  //that room will be exclusive to that user only
+  //user was sent by using the useEffect hook
   socket.on('setup', (userData) => {
-    //we will create a new room with the id of the new user data
-    //that room will be exclusive to that user only
     socket.join(userData._id);
     console.log(userData);
   });
   socket.emit('connectionEstablish');
+
   //this will take the room id from the frontend
   //when we will click on the chat this will creat the room with the particular user
   //when the other user will join it will add to this particular room
   //this will be the id of the selected chat we will create a new room
   //or the id of the particular chat
   //from the frontend user will click on the chat id will be
+
+  //room-id we will get from the id of the selected chat
+  //which ever the user clicks we wi
   socket.on('join chat', (roomId) => {
     socket.join(roomId);
     console.log(
@@ -69,7 +74,8 @@ io.on('connection', (socket) => {
         roomId
     );
   });
-
+  socket.on('typing', (room) => socket.in(room).emit('typing'));
+  socket.on('stop typing', (room) => socket.in(room).emit('stop typing'));
   //lets make the send message functionality in the backend
   //we have to manage the messages from here and we have to send them to the rooms
   socket.on('new message', (newMessageReceived) => {
@@ -86,5 +92,9 @@ io.on('connection', (socket) => {
       //for that particular user we send the message received with that particualr message
       socket.in(user._id).emit('message received', newMessageReceived);
     });
+  });
+  socket.off('setup', () => {
+    console.log('USER DISCONNECTED');
+    socket.leave(userData._id);
   });
 });

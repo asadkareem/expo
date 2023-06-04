@@ -20,6 +20,7 @@ const lectureRouter = require('./routes/lectureRoutes');
 const subjectRouter = require('./routes/subjectRoutes');
 const pastPaperRouter = require('./routes/pastPaperRoutes');
 const currentPaperRouter = require('./routes/currentPaperRoutes');
+const yearRouter = require('./routes/YearRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -77,6 +78,7 @@ app.use('/api/v1/subjects', subjectRouter);
 app.use('/api/v1/lectures', lectureRouter);
 app.use('/api/v1/pastPaper', pastPaperRouter);
 app.use('/api/v1/currentPaper', currentPaperRouter);
+app.use('/api/v1/years', yearRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

@@ -47,5 +47,6 @@ const pastPaperSchema = new mongoose.Schema({
     required: true,
   },
 });
+
 const PastPaper = mongoose.model('pastPaperSchema', pastPaperSchema);
 module.exports = PastPaper;

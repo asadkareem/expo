@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide a your schoolName'],
   },
   contact: {
-    type: Number,
+    type: String,
     required: [true, 'Please provide the contact number'],
   },
   photo: String,

@@ -22,8 +22,8 @@ router.patch(
 );
 router.patch('/subScription', userController.updateSubScription);
 //routes restricted to admin
-router.use(authContoller.restrictTo('admin'));
 router.route('/').get(userController.getAllUsers);
+router.use(authContoller.restrictTo('admin'));
 router
   .route('/:id')
   .get(userController.getUser)

@@ -8,9 +8,9 @@ exports.lectureMiddleware = catchAsync(async (req, res, next) => {
   if (!req.file) {
     return next(new AppError('you must upload the lecture', 404));
   }
-
-  req.body.lectureLink = req.file.filename;
-
+  req.body.lectureLink = `${req.protocol}://${req.get('host')}/lectures/${
+    req.file.filename
+  }`;
   const doc = await lecture.create(req.body);
   res.status(201).json({
     status: 'success',

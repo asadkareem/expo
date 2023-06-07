@@ -8,6 +8,10 @@ const pastPaperSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  class: {
+    type: String,
+    required: true,
+  },
 });
 
 const PastPaper = mongoose.model('pastPaperSchema', pastPaperSchema);

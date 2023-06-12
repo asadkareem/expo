@@ -49,6 +49,7 @@ io.on('connection', (socket) => {
   console.log('a user connected');
   socket.on('pushId', (Id) => {
     socket.join(Id);
+    console.log('we get the admin id');
     socket.emit('roomconnect with the Id');
   });
 

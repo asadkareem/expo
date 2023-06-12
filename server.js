@@ -59,6 +59,7 @@ io.on('connection', (socket) => {
       'user went to frontend when he click on the chat at that time he sent the chat id by that he joined the chat room ' +
         roomId
     );
+    socket.emit('chat  id created room successfully');
   });
 
   socket.on('typing', (room) => socket.in(room).emit('typing'));
@@ -67,7 +68,7 @@ io.on('connection', (socket) => {
   socket.on('new message', (newMessageReceived) => {
     console.log('new message received');
     var chat = newMessageReceived.chat;
-    console.log(chat);
+    console.log(newMessageReceived);
     if (!chat.users) {
       console.log('users not defined on the chat');
     }

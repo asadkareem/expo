@@ -47,7 +47,7 @@ const io = require('socket.io')(server, {
 
 io.on('connection', (socket) => {
   console.log('a user connected');
-  socket.on('setup', (Id) => {
+  socket.on('pushId', (Id) => {
     socket.join(Id);
     socket.emit('roomconnect with the Id');
   });

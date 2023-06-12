@@ -40,7 +40,6 @@ process.on('SIGTERM', () => {
 });
 
 const io = require('socket.io')(server, {
-  pingTimeOut: 60000,
   cors: {
     origin: '*',
   },

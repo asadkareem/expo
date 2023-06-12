@@ -47,10 +47,9 @@ const io = require('socket.io')(server, {
 
 io.on('connection', (socket) => {
   console.log('a user connected');
-  socket.on('setup', (userData) => {
-    socket.join(userData._id);
-    console.log(userData);
-    socket.emit('roomconnect');
+  socket.on('setup', (Id) => {
+    socket.join(Id);
+    socket.emit('roomconnect with the Id');
   });
 
   socket.on('join chat', (roomId) => {
@@ -63,6 +62,7 @@ io.on('connection', (socket) => {
 
   socket.on('typing', (room) => socket.in(room).emit('typing'));
   socket.on('stop typing', (room) => socket.in(room).emit('stop typing'));
+
   socket.on('new message', (newMessageReceived) => {
     var chat = newMessageReceived.chat;
     if (!chat.users) {

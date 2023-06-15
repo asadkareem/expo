@@ -3,19 +3,9 @@ const lectureController = require('./../controllers/lectureContoller');
 const authController = require('./../controllers/authController');
 const multer = require('multer');
 const router = express.Router();
+const upload = multer({ dest: 'uplaod/' });
 
-router.use(authController.protect);
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/lectures');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
-
+router.route('/getvideo').get(lectureController.getFileFromS3);
 router.use(authController.protect);
 router.route('/').get(lectureController.getAlllecture);
 router.route('/:id').get(lectureController.getlecture);

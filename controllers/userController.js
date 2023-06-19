@@ -4,6 +4,9 @@ const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const factory = require('./handlerFactory');
+const S3 = require('aws-sdk/clients/s3');
+const AWS = require('aws-sdk');
+const fs = require('fs');
 
 const multerStorage = multer.memoryStorage();
 
@@ -14,7 +17,13 @@ const multerFilter = (req, file, cb) => {
     cb(new AppError('Not an image! Please upload only images.', 400), false);
   }
 };
-
+const s3 = new S3({
+  region: 'eu-north-1',
+  credentials: {
+    accessKeyId: 'AKIAV64CGJACZG3A2TH3',
+    secretAccessKey: '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',
+  },
+});
 const upload = multer({
   storage: multerStorage,
   fileFilter: multerFilter,
@@ -54,6 +63,15 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
+const uploadFile = (file) => {
+  const fileStream = fs.createReadStream(file.path);
+  const uploadParams = {
+    Bucket: 'expolearn',
+    Body: fileStream,
+    Key: file.filename,
+  };
+  return s3.upload(uploadParams).promise();
+};
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -67,7 +85,12 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
   const filteredBody = req.body;
-  if (req.file) filteredBody.photo = req.file.filename;
+  const imageResult = await uploadFile(req.file);
+
+  if (req.file)
+    filteredBody.photo = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/users/getImage?key=${imageResult.Key}`;
 
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
@@ -97,6 +120,46 @@ exports.updateSubScription = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getImageFromS3 = (req, res) => {
+  const bucketName = 'expolearn';
+  const key = req.query.key;
+
+  const params = {
+    Bucket: bucketName,
+    Key: key,
+  };
+
+  // Set the timeout value for the AWS SDK globally
+  AWS.config.update({
+    httpOptions: {
+      timeout: 0, // Set to 0 or a higher value (in milliseconds)
+    },
+  });
+  const s3 = new S3({
+    region: 'eu-north-1',
+    credentials: {
+      accessKeyId: 'AKIAV64CGJACZG3A2TH3',
+      secretAccessKey: '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',
+    },
+  });
+
+  const fileStream = s3.getObject(params).createReadStream();
+
+  fileStream.on('error', (err) => {
+    console.error('Error retrieving file from Amazon S3:', err);
+    res.status(500).json({ error: 'Failed to retrieve file from Amazon S3' });
+  });
+
+  res.type('image/jpg');
+  fileStream.pipe(res);
+
+  res.on('close', () => {
+    // Handle the closure of the response
+    fileStream.destroy(); // Stop the file stream explicitly
+  });
+};
+
 exports.getUser = factory.getOne(User);
 exports.getAllUsers = factory.getAll(User);
 exports.updateUser = factory.updateOne(User);

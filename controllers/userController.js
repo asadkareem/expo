@@ -85,12 +85,12 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
   const filteredBody = req.body;
-  const imageResult = await uploadFile(req.file);
-
-  if (req.file)
+  if (req.file) {
+    const imageResult = await uploadFile(req.file);
     filteredBody.photo = `${req.protocol}://${req.get(
       'host'
     )}/api/v1/users/getImage?key=${imageResult.Key}`;
+  }
 
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {

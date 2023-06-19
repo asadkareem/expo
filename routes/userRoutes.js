@@ -11,12 +11,12 @@ router.get('/logout', authContoller.logout);
 router.patch('/resetPassword/:token', authContoller.resetPassword);
 
 // Protect all routes after this middleware
+router.route('/getImage').get(userController.getImageFromS3);
 router.use(authContoller.protect);
 router.get('/me', userController.getMe, userController.getUser);
 router.delete('/deleteMe', userController.deleteMe);
 router.patch('/updateMyPassword', authContoller.updatePassword);
 router.patch('/updateMe', upload.single('photo'), userController.updateMe);
-router.route('/getImage').get(userController.getImageFromS3);
 router.patch('/subScription', userController.updateSubScription);
 //routes restricted to admin
 router.route('/').get(userController.getAllUsers);
@@ -26,5 +26,4 @@ router
   .get(userController.getUser)
   .patch(userController.updateUser)
   .delete(userController.deleteUser);
-
 module.exports = router;

@@ -11,7 +11,7 @@ router.get('/logout', authContoller.logout);
 router.patch('/resetPassword/:token', authContoller.resetPassword);
 
 // Protect all routes after this middleware
-// router.use(authContoller.protect);
+router.use(authContoller.protect);
 router.get('/me', userController.getMe, userController.getUser);
 router.delete('/deleteMe', userController.deleteMe);
 router.patch('/updateMyPassword', authContoller.updatePassword);

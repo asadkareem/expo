@@ -49,6 +49,7 @@ io.on('connection', (socket) => {
   console.log('Connected to socket.io');
   socket.on('setup', (id) => {
     socket.join(id);
+    console.log('user connect with this id:', id);
     socket.emit('connected');
   });
 

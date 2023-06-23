@@ -17,11 +17,11 @@ const userSchema = new mongoose.Schema({
   },
   schoolName: {
     type: String,
-    required: [true, 'Please provide a your schoolName'],
+    // required: [true, 'Please provide a your schoolName'],
   },
   contact: {
     type: String,
-    required: [true, 'Please provide the contact number'],
+    // required: [true, 'Please provide the contact number'],
   },
   photo: String,
   role: {

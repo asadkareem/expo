@@ -4,11 +4,18 @@ const userController = require('./../controllers/userController');
 const multer = require('multer');
 const upload = multer({ dest: 'uplaod/' });
 const router = express.Router();
+
+router.get('/resetPassword/:token', (req, res) => {
+  const token = req.params.token;
+  res.render('reset-password', { token });
+});
+
+router.post('/resetPassword/:token', authContoller.resetPassword);
+
 router.post('/signup', authContoller.signup);
 router.post('/login', authContoller.login);
 router.post('/forgotPassword', authContoller.forgotPassword);
 router.get('/logout', authContoller.logout);
-router.patch('/resetPassword/:token', authContoller.resetPassword);
 
 // Protect all routes after this middleware
 router.route('/getImage').get(userController.getImageFromS3);

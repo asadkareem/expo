@@ -13,6 +13,15 @@ const messageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Chat',
     },
+    createdAt: {
+      type: Date,
+      default: () => {
+        const currentTime = new Date().toLocaleString('en-US', {
+          timeZone: 'America/New_York',
+        });
+        return currentTime;
+      },
+    },
   },
   {
     timestamps: true,

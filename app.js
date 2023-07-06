@@ -24,6 +24,7 @@ const currentPaperRouter = require('./routes/currentPaperRoutes');
 const mcqRouter = require('./routes/mcqRouter');
 const longQuestionRouter = require('./routes/longQuestionRouter');
 const shortQuestionRouter = require('./routes/shortQuestionRouter');
+const chatPictureRoutes = require('./routes/chatPictureRoutes');
 const yearRouter = require('./routes/YearRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -43,6 +44,7 @@ app.use(helmet());
 if (process.env.NODE_ENV == 'development') {
   app.use(morgan('dev'));
 }
+
 // console.log(process.env.NODE_ENV);
 // app.use(compression());
 // Limit requests from same API
@@ -83,6 +85,7 @@ app.use('/api/v1/years', yearRouter);
 app.use('/api/v1/mcqs', mcqRouter);
 app.use('/api/v1/shortQuestion', shortQuestionRouter);
 app.use('/api/v1/longQuestions', longQuestionRouter);
+app.use('/api/v1/chatImage', chatPictureRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

@@ -73,6 +73,17 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('new picture', (newChatImageRecieved) => {
+    var chat = newChatImageRecieved.chat;
+    console.log(newChatImageRecieved);
+    if (!chat.users) return console.log('chat.users not defined');
+    chat.users.forEach((user) => {
+      if (user._id == newChatImageRecieved.sender._id) return;
+
+      socket.to(user._id).emit('message recieved', newChatImageRecieved);
+    });
+  });
+
   socket.off('setup', () => {
     console.log('USER DISCONNECTED');
     socket.leave(userData._id);

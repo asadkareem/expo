@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
     chat.users.forEach((user) => {
       if (user._id == newChatImageRecieved.sender._id) return;
 
-      socket.to(user._id).emit('message recieved', newChatImageRecieved);
+      socket.to(user._id).emit('picture recieved', newChatImageRecieved);
     });
   });
 

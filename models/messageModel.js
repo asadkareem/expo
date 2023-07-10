@@ -7,7 +7,6 @@ const messageSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      trim: true,
     },
     time: {
       type: String,

@@ -30,24 +30,19 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
   if (!chatId) {
     return next(new AppError('Please Provide Message And Chat Id', 400));
   }
+  let newMessage = {
+    sender: req.user._id,
+    chat: chatId,
+    time: time,
+  };
   if (req.file) {
     const imageResult = await uploadFile(req.file);
     req.body.image = `${req.protocol}://${req.get(
       'host'
     )}/api/v1/users/getImage?key=${imageResult.Key}`;
-    var newMessage = {
-      sender: req.user._id,
-      chat: chatId,
-      time: time,
-      image: req.body.image,
-    };
+    newMessage.image = req.body.image;
   } else {
-    var newMessage = {
-      sender: req.user._id,
-      content: content,
-      chat: chatId,
-      time: time,
-    };
+    newMessage.content = content;
   }
   try {
     const message = await Message.create(newMessage);

@@ -27,7 +27,7 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
   //the actual message we want to send - this will come from the body
   //who is the sender of the message for the groups (so we will get it from our middlware )
   const { chatId, content, time } = req.body;
-  if (!chatId || !content) {
+  if (!chatId) {
     return next(new AppError('Please Provide Message And Chat Id', 400));
   }
   if (req.file) {

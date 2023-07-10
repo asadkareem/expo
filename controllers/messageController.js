@@ -37,41 +37,47 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
     )}/api/v1/users/getImage?key=${imageResult.Key}`;
     var newMessage = {
       sender: req.user._id,
-      content: content,
       chat: chatId,
       time: time,
       image: req.body.image,
     };
-    try {
-      const message = await Message.create(newMessage);
-      const populatedMessage = await Message.findById(message._id)
-        .populate('sender')
-        .populate({
-          path: 'chat',
-          populate: {
-            path: 'users',
-            model: 'User', // Replace 'User' with your actual Mongoose model name for users
-          },
-        })
-        .exec();
-      const chatId = populatedMessage.chat._id;
-      const messageId = populatedMessage._id;
+  } else {
+    var newMessage = {
+      sender: req.user._id,
+      content: content,
+      chat: chatId,
+      time: time,
+    };
+  }
+  try {
+    const message = await Message.create(newMessage);
+    const populatedMessage = await Message.findById(message._id)
+      .populate('sender')
+      .populate({
+        path: 'chat',
+        populate: {
+          path: 'users',
+          model: 'User', // Replace 'User' with your actual Mongoose model name for users
+        },
+      })
+      .exec();
+    const chatId = populatedMessage.chat._id;
+    const messageId = populatedMessage._id;
 
-      await Chat.findByIdAndUpdate(chatId, { latestMessage: messageId });
-      res.status(200).json({
-        status: 'success',
-        data: {
-          message: populatedMessage,
-        },
-      });
-    } catch (err) {
-      res.status(400).json({
-        status: 'fail',
-        data: {
-          message: err.message,
-        },
-      });
-    }
+    await Chat.findByIdAndUpdate(chatId, { latestMessage: messageId });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        message: populatedMessage,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      data: {
+        message: err.message,
+      },
+    });
   }
 });
 

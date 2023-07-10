@@ -63,6 +63,9 @@ io.on('connection', (socket) => {
   socket.on('stop typing', (room) => socket.in(room).emit('stop typing'));
 
   socket.on('new message', (newMessageRecieved) => {
+    if (newMessageRecieved.image) {
+      delete newMessageRecieved.content;
+    }
     var chat = newMessageRecieved.chat;
     console.log(newMessageRecieved);
     if (!chat.users) return console.log('chat.users not defined');

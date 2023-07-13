@@ -6,7 +6,7 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 //connecting to the database
-const DB = process.env.DATABASE_CLOUD;
+const DB = process.env.DATABASE_LOCAL;
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -82,7 +82,6 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newChatImageRecieved.sender._id) return;
-
       socket.to(user._id).emit('picture recieved', newChatImageRecieved);
     });
   });

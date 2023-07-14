@@ -3,11 +3,12 @@ const AppError = require('./../utils/appError');
 const Message = require('./../models/messageModel');
 const Chat = require('./../models/chatModel');
 const User = require('./../models/userModel');
-// const admin = require('firebase-admin');
-// const serviceAccount = require('./../FireBaseConfig.json');
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-// });
+const admin = require('firebase-admin');
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  projectId: 'buyersapp-619f7', // Your Firebase project ID
+  storageBucket: 'buyersapp-619f7.appspot.com', // Your Firebase storage bucket
+});
 const S3 = require('aws-sdk/clients/s3');
 const AWS = require('aws-sdk');
 const fs = require('fs');
@@ -111,25 +112,29 @@ exports.getMessage = catchAsync(async (req, res, next) => {
   }
 });
 
-// exports.sendNotification = (req, res) => {
-//   const registrationToken = req.body.token;
-//   // Send the notification
-//   admin
-//     .messaging()
-//     .send({
-//       token: registrationToken,
-//       notification: {
-//         title: req.body.title,
-//         body: req.body.message,
-//       },
-//     })
-//     .then((response) => {
-//       console.log('Successfully sent notification:', response);
-//       res.status(200).json({
-//         success: 'successfully send push notifications to user!',
-//       });
-//     })
-//     .catch((error) => {
-//       console.error('Error sending notification:', error);
-//     });
-// };
+exports.sendNotification = (req, res) => {
+  const registrationToken = req.body.token;
+  // Send the notification
+  const message = {
+    notification: {
+      title: req.body.title,
+      body: req.body.message,
+    },
+    token: registrationToken, // Specify the topic or the device token to send the notification to
+  };
+
+  // Send the message
+  admin
+    .messaging()
+    .send(message)
+    .then((response) => {
+      res.status(200).json({
+        message: 'message sent successfullly',
+      });
+    })
+    .catch((error) => {
+      res.status(200).json({
+        message: 'error in sending the message',
+      });
+    });
+};

@@ -25,6 +25,7 @@ const server = app.listen(port, () => {
 process.on('unhandledRejection', (err) => {
   console.log('UNHANDLED REJECTION! 💥 Shutting down...');
   console.log(err.name, err.message);
+
   server.close(() => {
     process.exit(1);
   });
@@ -56,6 +57,7 @@ io.on('connection', (socket) => {
 
   socket.on('join chat', (room) => {
     socket.join(room);
+    console.log('i am the console.log');
     console.log('User Joined Room: ' + room);
   });
 

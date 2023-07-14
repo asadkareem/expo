@@ -4,10 +4,9 @@ const Message = require('./../models/messageModel');
 const Chat = require('./../models/chatModel');
 const User = require('./../models/userModel');
 const admin = require('firebase-admin');
+const serviceAccount = require('./../service-account.json');
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-  projectId: 'buyersapp-619f7', // Your Firebase project ID
-  storageBucket: 'buyersapp-619f7.appspot.com', // Your Firebase storage bucket
+  credential: admin.credential.cert(serviceAccount),
 });
 const S3 = require('aws-sdk/clients/s3');
 const AWS = require('aws-sdk');
@@ -111,30 +110,25 @@ exports.getMessage = catchAsync(async (req, res, next) => {
     });
   }
 });
-
+const notification_options = {
+  priority: 'high',
+  timeToLive: 60 * 60 * 24,
+};
 exports.sendNotification = (req, res) => {
-  const registrationToken = req.body.token;
-  // Send the notification
-  const message = {
-    notification: {
-      title: req.body.title,
-      body: req.body.message,
-    },
-    token: registrationToken, // Specify the topic or the device token to send the notification to
+  const registrationToken = req.body.registrationToken;
+  const notification = {
+    title: req.body.title,
+    body: req.body.message,
   };
-
-  // Send the message
   admin
     .messaging()
-    .send(message)
+    .sendToDevice(registrationToken, { notification }, notification_options)
     .then((response) => {
       res.status(200).json({
-        message: 'message sent successfullly',
+        res: response,
       });
     })
     .catch((error) => {
-      res.status(200).json({
-        message: 'error in sending the message',
-      });
+      console.log(error);
     });
 };

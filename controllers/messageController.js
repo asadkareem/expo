@@ -3,11 +3,11 @@ const AppError = require('./../utils/appError');
 const Message = require('./../models/messageModel');
 const Chat = require('./../models/chatModel');
 const User = require('./../models/userModel');
-const admin = require('firebase-admin');
-const serviceAccount = require('./../FireBaseConfig.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+// const admin = require('firebase-admin');
+// const serviceAccount = require('./../FireBaseConfig.json');
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+// });
 const S3 = require('aws-sdk/clients/s3');
 const AWS = require('aws-sdk');
 const fs = require('fs');
@@ -111,25 +111,25 @@ exports.getMessage = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.sendNotification = (req, res) => {
-  const registrationToken = req.body.token;
-  // Send the notification
-  admin
-    .messaging()
-    .send({
-      token: registrationToken,
-      notification: {
-        title: req.body.title,
-        body: req.body.message,
-      },
-    })
-    .then((response) => {
-      console.log('Successfully sent notification:', response);
-      res.status(200).json({
-        success: 'successfully send push notifications to user!',
-      });
-    })
-    .catch((error) => {
-      console.error('Error sending notification:', error);
-    });
-};
+// exports.sendNotification = (req, res) => {
+//   const registrationToken = req.body.token;
+//   // Send the notification
+//   admin
+//     .messaging()
+//     .send({
+//       token: registrationToken,
+//       notification: {
+//         title: req.body.title,
+//         body: req.body.message,
+//       },
+//     })
+//     .then((response) => {
+//       console.log('Successfully sent notification:', response);
+//       res.status(200).json({
+//         success: 'successfully send push notifications to user!',
+//       });
+//     })
+//     .catch((error) => {
+//       console.error('Error sending notification:', error);
+//     });
+// };

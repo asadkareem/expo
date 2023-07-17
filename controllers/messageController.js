@@ -167,10 +167,15 @@ exports.sendNotification = async (req, res) => {
     'AAAA_hGxMTM:APA91bGsF4Accs7agUCRfTMH2YsphW4DTz1AYk1RQ_kEdi7FL28La_mQllTnZsqEpkZLcbpYTB2r6Wo3UyBcJ8ZWXdl2T20NTL1pIiM231hyk3QTINA2RMidh89Fr-I0CMG2OPzKKpvq'; // Replace with your FCM server key
   const payload = {
     to: req.body.registrationToken,
+    data: {
+      title: req.body.title,
+      body: req.body.message,
+      // Add any additional custom data here
+    },
     notification: {
       title: req.body.title,
       body: req.body.message,
-      // You can customize other notification properties here
+      // Customize other notification properties here
     },
   };
 

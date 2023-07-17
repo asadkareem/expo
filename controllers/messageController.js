@@ -114,15 +114,42 @@ const notification_options = {
   priority: 'high',
   timeToLive: 60 * 60 * 24,
 };
+// exports.sendNotification = (req, res) => {
+//   const registrationToken = req.body.registrationToken;
+//   const notification = {
+//     title: req.body.title,
+//     body: req.body.message,
+//   };
+//   admin
+//     .messaging()
+//     .sendToDevice(registrationToken, { notification }, notification_options)
+//     .then((response) => {
+//       res.status(200).json({
+//         res: response,
+//       });
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// };
+
 exports.sendNotification = (req, res) => {
   const registrationToken = req.body.registrationToken;
   const notification = {
     title: req.body.title,
     body: req.body.message,
   };
+  const data = {
+    title: req.body.title,
+    body: req.body.message,
+  };
+  const payload = {
+    notification: notification,
+    data: data,
+  };
   admin
     .messaging()
-    .sendToDevice(registrationToken, { notification }, notification_options)
+    .sendToDevice(registrationToken, payload)
     .then((response) => {
       res.status(200).json({
         res: response,

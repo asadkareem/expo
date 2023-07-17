@@ -4,6 +4,7 @@ const Message = require('./../models/messageModel');
 const Chat = require('./../models/chatModel');
 const User = require('./../models/userModel');
 const admin = require('firebase-admin');
+const fetch = require('node-fetch');
 const serviceAccount = require('./../service-account.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -133,29 +134,66 @@ const notification_options = {
 //     });
 // };
 
-exports.sendNotification = (req, res) => {
-  const registrationToken = req.body.registrationToken;
-  const notification = {
-    title: req.body.title,
-    body: req.body.message,
-  };
-  const data = {
-    title: req.body.title,
-    body: req.body.message,
-  };
+// exports.sendNotification = (req, res) => {
+//   const registrationToken = req.body.registrationToken;
+//   const notification = {
+//     title: req.body.title,
+//     body: req.body.message,
+//   };
+//   const data = {
+//     title: req.body.title,
+//     body: req.body.message,
+//   };
+//   const payload = {
+//     notification: notification,
+//     data: data,
+//   };
+//   admin
+//     .messaging()
+//     .sendToDevice(registrationToken, payload)
+//     .then((response) => {
+//       res.status(200).json({
+//         res: response,
+//       });
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// };
+
+exports.sendNotification = async (req, res) => {
+  const fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
+  const serverKey =
+    'AAAA_hGxMTM:APA91bGsF4Accs7agUCRfTMH2YsphW4DTz1AYk1RQ_kEdi7FL28La_mQllTnZsqEpkZLcbpYTB2r6Wo3UyBcJ8ZWXdl2T20NTL1pIiM231hyk3QTINA2RMidh89Fr-I0CMG2OPzKKpvq'; // Replace with your FCM server key
   const payload = {
-    notification: notification,
-    data: data,
+    to: req.body.registrationToken,
+    notification: {
+      title: req.body.title,
+      body: req.body.message,
+      // You can customize other notification properties here
+    },
   };
-  admin
-    .messaging()
-    .sendToDevice(registrationToken, payload)
-    .then((response) => {
-      res.status(200).json({
-        res: response,
-      });
-    })
-    .catch((error) => {
-      console.log(error);
+
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `key=${serverKey}`,
+    },
+    body: JSON.stringify(payload),
+  };
+
+  try {
+    const response = await fetch(fcmEndpoint, requestOptions);
+    const data = await response.json();
+    console.log('Push notification sent successfully:', data);
+    res.status(200).json({
+      data: data,
     });
+  } catch (error) {
+    console.error('Error sending push notification:', error);
+    res.status(500).json({
+      message: 'server error',
+    });
+  }
 };

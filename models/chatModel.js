@@ -19,6 +19,18 @@ const chatSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Message',
     },
+    unreadMessages: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
     groupAdmin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

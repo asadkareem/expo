@@ -3,12 +3,6 @@ const AppError = require('./../utils/appError');
 const Message = require('./../models/messageModel');
 const Chat = require('./../models/chatModel');
 const User = require('./../models/userModel');
-const admin = require('firebase-admin');
-const fetch = require('node-fetch');
-const serviceAccount = require('./../service-account.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
 const S3 = require('aws-sdk/clients/s3');
 const AWS = require('aws-sdk');
 const fs = require('fs');
@@ -29,9 +23,6 @@ const uploadFile = (file) => {
   return s3.upload(uploadParams).promise();
 };
 exports.sendMessage = catchAsync(async (req, res, next) => {
-  //we will need the chatid to which we want to send the message -these will come from the body
-  //the actual message we want to send - this will come from the body
-  //who is the sender of the message for the groups (so we will get it from our middlware )
   const { chatId, content, time } = req.body;
   if (!chatId) {
     return next(new AppError('Please Provide Message And Chat Id', 400));
@@ -60,12 +51,23 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
           path: 'users',
           model: 'User', // Replace 'User' with your actual Mongoose model name for users
         },
+        select: '-unreadMessages',
       })
       .exec();
     const chatId = populatedMessage.chat._id;
     const messageId = populatedMessage._id;
-
-    await Chat.findByIdAndUpdate(chatId, { latestMessage: messageId });
+    const senderId = populatedMessage.sender._id;
+    await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $set: { latestMessage: messageId },
+        $inc: { 'unreadMessages.$[elem].count': 1 },
+      },
+      {
+        arrayFilters: [{ 'elem.user': { $ne: senderId } }],
+        new: true,
+      }
+    );
     res.status(200).json({
       status: 'success',
       data: {
@@ -111,94 +113,19 @@ exports.getMessage = catchAsync(async (req, res, next) => {
     });
   }
 });
-const notification_options = {
-  priority: 'high',
-  timeToLive: 60 * 60 * 24,
-};
-// exports.sendNotification = (req, res) => {
-//   const registrationToken = req.body.registrationToken;
-//   const notification = {
-//     title: req.body.title,
-//     body: req.body.message,
-//   };
-//   admin
-//     .messaging()
-//     .sendToDevice(registrationToken, { notification }, notification_options)
-//     .then((response) => {
-//       res.status(200).json({
-//         res: response,
-//       });
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     });
-// };
 
-// exports.sendNotification = (req, res) => {
-//   const registrationToken = req.body.registrationToken;
-//   const notification = {
-//     title: req.body.title,
-//     body: req.body.message,
-//   };
-//   const data = {
-//     title: req.body.title,
-//     body: req.body.message,
-//   };
-//   const payload = {
-//     notification: notification,
-//     data: data,
-//   };
-//   admin
-//     .messaging()
-//     .sendToDevice(registrationToken, payload)
-//     .then((response) => {
-//       res.status(200).json({
-//         res: response,
-//       });
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     });
-// };
-
-exports.sendNotification = async (req, res) => {
-  const fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
-  const serverKey =
-    'AAAA_hGxMTM:APA91bGsF4Accs7agUCRfTMH2YsphW4DTz1AYk1RQ_kEdi7FL28La_mQllTnZsqEpkZLcbpYTB2r6Wo3UyBcJ8ZWXdl2T20NTL1pIiM231hyk3QTINA2RMidh89Fr-I0CMG2OPzKKpvq'; // Replace with your FCM server key
-  const payload = {
-    to: req.body.registrationToken,
-    data: {
-      title: req.body.title,
-      body: req.body.message,
-      // Add any additional custom data here
-    },
-    notification: {
-      title: req.body.title,
-      body: req.body.message,
-      // Customize other notification properties here
-    },
-  };
-
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `key=${serverKey}`,
-    },
-    body: JSON.stringify(payload),
-  };
-
+exports.markMessageAsRead = async (req, res) => {
   try {
-    const response = await fetch(fcmEndpoint, requestOptions);
-    const data = await response.json();
-    console.log('Push notification sent successfully:', data);
+    await Chat.updateOne(
+      { _id: req.body.chatId, 'unreadMessages.user': req.body.userId },
+      { $set: { 'unreadMessages.$.count': 0 } }
+    );
     res.status(200).json({
-      data: data,
+      message: 'successfully message is  marked to be read',
     });
-  } catch (error) {
-    console.error('Error sending push notification:', error);
+  } catch (err) {
     res.status(500).json({
-      message: 'server error',
+      message: ' marked read',
     });
   }
 };

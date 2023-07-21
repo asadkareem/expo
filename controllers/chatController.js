@@ -30,7 +30,10 @@ exports.accessChat = catchAsync(async (req, res, next) => {
         isGroupChat: false,
         users: [req.user._id, userId],
       };
-
+      chatData.unreadMessages = chatData.users.map((user) => ({
+        user: user,
+        count: 0,
+      }));
       const createdChat = await Chat.create(chatData);
       const fullChat = await Chat.findOne({ _id: createdChat._id }).populate(
         'users',

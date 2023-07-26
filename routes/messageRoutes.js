@@ -7,7 +7,12 @@ const router = express.Router();
 
 router.use(authContoller.protect);
 router.route('/').post(upload.single('image'), messageController.sendMessage);
-router.route('/markMessageAsRead').post(messageController.markMessageAsRead);
+router
+  .route('/userSentMsgCountZero')
+  .post(messageController.userSentMsgCountZero);
+router
+  .route('/adminSentMsgCountZero')
+  .post(messageController.adminSentMsgCountZero);
 router.route('/:chatId').get(messageController.getMessage);
 
 module.exports = router;

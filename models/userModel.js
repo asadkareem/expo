@@ -35,6 +35,21 @@ const userSchema = new mongoose.Schema({
     minlength: 8,
     select: false,
   },
+
+  //message sent from the  admin
+  adminSentMsgCount: {
+    type: Number,
+    default: 0,
+  },
+  //message sent from admin to me
+  userSentMsgCount: {
+    type: Number,
+    default: 0,
+  },
+  messageTime: {
+    type: String,
+  },
+  time: String,
   passwordConfirm: {
     type: String,
     required: [true, 'Please conform your password'],

@@ -54,20 +54,35 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
         select: '-unreadMessages',
       })
       .exec();
-    const chatId = populatedMessage.chat._id;
+    // const chatId = populatedMessage.chat._id;
     const messageId = populatedMessage._id;
     const senderId = populatedMessage.sender._id;
-    await Chat.findByIdAndUpdate(
-      chatId,
-      {
-        $set: { latestMessage: messageId },
-        $inc: { 'unreadMessages.$[elem].count': 1 },
-      },
-      {
-        arrayFilters: [{ 'elem.user': { $ne: senderId } }],
-        new: true,
+
+    const sender = await User.findById(senderId);
+
+    const { users } = await Chat.findById(chatId).populate('users');
+    console.log(users);
+    let nonSenderId;
+
+    for (const user of users) {
+      if (user._id.toString() !== senderId.toString()) {
+        nonSenderId = user._id;
+        break;
       }
-    );
+    }
+    if (sender.role == 'admin') {
+      const user = await User.findByIdAndUpdate(
+        nonSenderId._id, // Assuming 'sender._id' represents the admin user's ID
+        { $inc: { adminSentMsgCount: 1 }, messageTime: time },
+        { new: true }
+      );
+    } else {
+      const user = await User.findByIdAndUpdate(
+        senderId, // Assuming 'sender._id' represents the admin user's ID
+        { $inc: { userSentMsgCount: 1 }, messageTime: time },
+        { new: true }
+      );
+    }
     res.status(200).json({
       status: 'success',
       data: {
@@ -114,18 +129,70 @@ exports.getMessage = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.markMessageAsRead = async (req, res) => {
+exports.userSentMsgCountZero = async (req, res) => {
   try {
-    await Chat.updateOne(
-      { _id: req.body.chatId, 'unreadMessages.user': req.body.userId },
-      { $set: { 'unreadMessages.$.count': 0 } }
-    );
+    const { userId } = req.query;
+
+    // Find the user by the provided userId
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User not found',
+      });
+    }
+
+    // Set userSentMsgCount to zero
+    user.userSentMsgCount = 0;
+    // Save the updated user
+    await user.save({ validateBeforeSave: false });
     res.status(200).json({
-      message: 'successfully message is  marked to be read',
+      status: 'success',
+      message: 'User message sent count reset to zero',
+      data: {
+        user,
+      },
     });
   } catch (err) {
     res.status(500).json({
-      message: ' marked read',
+      status: 'error',
+      message: 'An error occurred',
+    });
+  }
+};
+
+exports.adminSentMsgCountZero = async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    // Find the user by the provided userId
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User not found',
+      });
+    }
+
+    // Set userSentMsgCount to zero
+    user.adminSentMsgCount = 0;
+
+    // Save the updated user
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Admin message sent count reset to zero',
+      data: {
+        user,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: 'An error occurred',
     });
   }
 };

@@ -14,5 +14,6 @@ router
   .route('/adminSentMsgCountZero')
   .post(messageController.adminSentMsgCountZero);
 router.route('/:chatId').get(messageController.getMessage);
+router.route("/sendPushNotification").post(messageController.sendPushNotification)
 
 module.exports = router;

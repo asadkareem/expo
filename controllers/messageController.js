@@ -196,3 +196,63 @@ exports.adminSentMsgCountZero = async (req, res) => {
     });
   }
 };
+
+
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./../black-terminus-389616-firebase-adminsdk-nmx2q-169a0c957a.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+
+
+
+exports.sendPushNotification=async(req,res)=>{
+const message = {
+  notification: {
+  title: req.body.title,
+  body: req.body.message,
+  },
+  token: req.body.fcm_token,
+  data: {
+    volume: "3.21.15",
+    contents: "http://www.news-magazine.com/world-week/21659772"
+  },
+  android: {
+    priority: "high",
+   
+  },
+  webpush: {
+    headers: {
+      Urgency: "high"
+    }
+  },
+  apns: {
+    headers: {
+      'apns-priority': '10'
+    }
+  },
+};
+  
+  admin.messaging().send(message).then((response) => {
+    res.status(200).json({
+      success : true,
+      response:response
+    })
+  console.log('Successfully sent message: ', response);
+  })
+  .catch((error) => {
+    res.status(500).json({
+      status:"error",
+      response:error
+    })
+  console.log('Error sending message: ', error);
+  });
+
+  }
+
+
+
+

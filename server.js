@@ -73,12 +73,15 @@ io.on('connection', (socket) => {
     console.log(newMessageRecieved);
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
+
       if (user._id == newMessageRecieved.sender._id) return;
 
       socket.to(user._id).emit('message recieved', newMessageRecieved);
     });
   });
-
+  socket.on("test", () => {
+    socket.emit("testing", "hello world")
+  })
   socket.on('new picture', (newChatImageRecieved) => {
     var chat = newChatImageRecieved.chat;
     console.log(newChatImageRecieved);

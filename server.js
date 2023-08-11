@@ -68,6 +68,7 @@ io.on('connection', (socket) => {
     if (newMessageRecieved.image) {
       delete newMessageRecieved.content;
     }
+    console.log("new message got hit")
     var chat = newMessageRecieved.chat;
     console.log(newMessageRecieved);
     if (!chat.users) return console.log('chat.users not defined');

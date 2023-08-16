@@ -56,9 +56,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('join chat', (room) => {
-    socket.join(room);
-    console.log('i am the console.log');
-    console.log('User Joined Room: ' + room);
+    // socket.join(room);
+    socket.join("64958369f62e1d37bd9973be");
+
+    // console.log('User Joined Room: ' + room);
   });
 
   socket.on('typing', (room) => socket.in(room).emit('typing'));
@@ -70,13 +71,12 @@ io.on('connection', (socket) => {
     }
     console.log("new message got hit")
     var chat = newMessageRecieved.chat;
-    console.log(newMessageRecieved);
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
-
       if (user._id == newMessageRecieved.sender._id) return;
+      // socket.to(user._id).emit('message recieved', newMessageRecieved);
+      socket.to("64958369f62e1d37bd9973be").emit('message received', newMessageRecieved);
 
-      socket.to(user._id).emit('message recieved', newMessageRecieved);
     });
   });
   socket.on("test", () => {

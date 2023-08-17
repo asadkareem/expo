@@ -69,6 +69,7 @@ io.on('connection', (socket) => {
       delete newMessageRecieved.content;
     }
     console.log("new message got hit")
+    console.log(newMessageRecieved);
     var chat = newMessageRecieved.chat;
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
@@ -76,12 +77,12 @@ io.on('connection', (socket) => {
       io.to(user._id).emit('message recieved', newMessageRecieved);
     });
   });
-  socket.on("test", () => {
-    socket.emit("testing", "hello world")
-  })
+
+
+
+
   socket.on('new picture', (newChatImageRecieved) => {
     var chat = newChatImageRecieved.chat;
-    console.log(newChatImageRecieved);
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newChatImageRecieved.sender._id) return;

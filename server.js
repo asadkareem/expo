@@ -74,7 +74,7 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newMessageRecieved.sender._id) return;
-      io.to(user._id).emit('message recieved', newMessageRecieved);
+      socket.in(user._id).emit('message recieved', newMessageRecieved);
     });
   });
 
@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newChatImageRecieved.sender._id) return;
-      io.to(user._id).emit('picture recieved', newChatImageRecieved);
+      socket.in(user._id).emit('picture recieved', newChatImageRecieved);
     });
   });
 

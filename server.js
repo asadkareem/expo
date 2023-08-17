@@ -48,21 +48,21 @@ const io = require('socket.io')(server, {
 
 io.on('connection', (socket) => {
   console.log('Connected to socket.io');
-
+  //room for that particualr user 
+  //socket.emit("setup",user) from the front-end
   socket.on('setup', (id) => {
     socket.join(id);
     console.log('user connect with this id:', id);
     socket.emit('connected');
   });
-
+  //this will take the room id from the front-end 
+  //so when we click on the chat it will create the room with the user and the other particular user 
   socket.on('join chat', (room) => {
     socket.join(room);
-
     console.log('User Joined Room: ' + room);
   });
 
-  socket.on('typing', (room) => socket.in(room).emit('typing'));
-  socket.on('stop typing', (room) => socket.in(room).emit('stop typing'));
+
 
   socket.on('new message', (newMessageRecieved) => {
     if (newMessageRecieved.image) {
@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newMessageRecieved.sender._id) return;
-      socket.to(user._id).emit('message recieved', newMessageRecieved);
+      io.to(user._id).emit('message recieved', newMessageRecieved);
     });
   });
   socket.on("test", () => {
@@ -85,7 +85,7 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newChatImageRecieved.sender._id) return;
-      socket.to(user._id).emit('picture recieved', newChatImageRecieved);
+      io.to(user._id).emit('picture recieved', newChatImageRecieved);
     });
   });
 
@@ -94,3 +94,6 @@ io.on('connection', (socket) => {
     socket.leave(userData._id);
   });
 });
+
+
+//how to send a message in a room 

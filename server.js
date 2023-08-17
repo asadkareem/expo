@@ -76,7 +76,7 @@ io.on('connection', (socket) => {
     chat.users.forEach((user) => {
       if (user._id == newMessageRecieved.sender._id) return;
       console.log(user, typeof user._id)
-      socket.in(user._id).emit('message recieved', newMessageRecieved);
+      socket.to(user._id).emit('message recieved', newMessageRecieved);
     });
   });
 
@@ -88,13 +88,16 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newChatImageRecieved.sender._id) return;
-      socket.in(user._id).emit('picture recieved', newChatImageRecieved);
+      socket.to(user._id).emit('picture recieved', newChatImageRecieved);
     });
   });
 
-  socket.off('setup', () => {
+  socket.on('disconnect', () => {
     console.log('USER DISCONNECTED');
-    socket.leave(userData._id);
+    // Make sure to leave all the rooms the user is a part of
+    socket.rooms.forEach((room) => {
+      socket.leave(room);
+    });
   });
 });
 

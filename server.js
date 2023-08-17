@@ -52,6 +52,7 @@ io.on('connection', (socket) => {
   //socket.emit("setup",user) from the front-end
   socket.on('setup', (id) => {
     socket.join(id);
+    console.log(typeof id)
     console.log('user connect with this id:', id);
     socket.emit('connected');
   });
@@ -74,6 +75,7 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newMessageRecieved.sender._id) return;
+      console.log(user, typeof user._id)
       socket.in(user._id).emit('message recieved', newMessageRecieved);
     });
   });

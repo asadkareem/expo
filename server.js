@@ -49,7 +49,7 @@ const io = require('socket.io')(server, {
 var clients = {}
 io.on('connection', (socket) => {
   console.log('Connected to socket.io');
-
+  console.log(clients)
   socket.on('setup', (id) => {
     clients[id] = socket;
     console.log(id);

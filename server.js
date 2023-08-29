@@ -51,6 +51,9 @@ var clients = {}
 io.on('connection', (socket) => {
   console.log("here are our clients ", clients)
   socket.on('setup', (id) => {
+    if (clients[id]) {
+      delete clients[id];
+    }
     clients[id] = socket;
     console.log(id);
     console.log('hello')

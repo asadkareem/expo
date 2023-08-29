@@ -49,10 +49,11 @@ const io = require('socket.io')(server, {
 var clients = {}
 io.on('connection', (socket) => {
   console.log('Connected to socket.io');
-  //room for that particualr user 
-  //socket.emit("setup",user) from the front-end
+
   socket.on('setup', (id) => {
     clients[id] = socket;
+    console.log(id);
+    console.log(clients)
     socket.emit('connected', id);
   });
 
@@ -66,11 +67,11 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newMessageRecieved.sender._id) return;
+      console.log(clients[user._id]);
       if (clients[user._id]) {
         clients[user._id].emit('message recieved', newMessageRecieved);
       }
     });
-
   });
 
   socket.on('new picture', (newChatImageRecieved) => {

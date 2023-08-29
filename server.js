@@ -49,9 +49,12 @@ const io = require('socket.io')(server, {
 
 var clients = {}
 io.on('connection', (socket) => {
+  const numberOfProperties = Object.keys(clients).length
+  console.log(numberOfProperties)
   console.log("here are our clients ", clients)
   socket.on('setup', (id) => {
     if (clients[id]) {
+      console.log("clients[id] already exist")
       clients[id].disconnect();
       delete clients[id];
     }

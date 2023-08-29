@@ -46,24 +46,15 @@ const io = require('socket.io')(server, {
   },
 });
 
+var clients = {}
 io.on('connection', (socket) => {
   console.log('Connected to socket.io');
   //room for that particualr user 
   //socket.emit("setup",user) from the front-end
   socket.on('setup', (id) => {
-    socket.join(id);
-    console.log(typeof id)
-    console.log('user connect with this id:', id);
-    socket.emit('connected');
+    clients[id] = socket;
+    socket.emit('connected', id);
   });
-  //this will take the room id from the front-end 
-  //so when we click on the chat it will create the room with the user and the other particular user 
-  socket.on('join chat', (room) => {
-    socket.join(room);
-    console.log('User Joined Room: ' + room);
-  });
-
-
 
   socket.on('new message', (newMessageRecieved) => {
     if (newMessageRecieved.image) {
@@ -75,31 +66,29 @@ io.on('connection', (socket) => {
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newMessageRecieved.sender._id) return;
-      console.log(user, typeof user._id)
-      socket.to(user._id).emit('message recieved', newMessageRecieved);
+      if (clients[user._id]) {
+        clients[user._id].emit('message recieved', newMessageRecieved);
+      }
     });
+
   });
-
-
-
 
   socket.on('new picture', (newChatImageRecieved) => {
     var chat = newChatImageRecieved.chat;
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newChatImageRecieved.sender._id) return;
-      socket.to(user._id).emit('picture recieved', newChatImageRecieved);
+      if (clients[user._id]) {
+        clients[user._id].emit('message recieved', newMessageRecieved);
+      }
     });
   });
 
-  socket.on('disconnect', () => {
-    console.log('USER DISCONNECTED');
-    // Make sure to leave all the rooms the user is a part of
-    socket.rooms.forEach((room) => {
-      socket.leave(room);
-    });
+  socket.on('disconnect', (socket) => {
+    console.log('USER DISCONNECTED', socket.id);
   });
-});
+
+})
 
 
-//how to send a message in a room 
+

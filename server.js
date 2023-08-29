@@ -48,8 +48,6 @@ const io = require('socket.io')(server, {
 
 var clients = {}
 io.on('connection', (socket) => {
-  console.log('Connected ');
-
   console.log("here are our clients ", clients)
   socket.on('setup', (id) => {
     clients[id] = socket;
@@ -82,6 +80,7 @@ io.on('connection', (socket) => {
     chat.users.forEach((user) => {
       if (user._id == newChatImageRecieved.sender._id) return;
       if (clients[user._id]) {
+        console.log(clients[user._id])
         clients[user._id].emit('message recieved', newMessageRecieved);
       }
     });

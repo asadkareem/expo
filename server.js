@@ -53,6 +53,7 @@ io.on('connection', (socket) => {
   socket.on('setup', (id) => {
     clients[id] = socket;
     console.log(id);
+    console.log('hello')
     console.log(clients)
     socket.emit('connected', id);
   });

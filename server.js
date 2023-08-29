@@ -53,11 +53,11 @@ io.on('connection', (socket) => {
   console.log(numberOfProperties)
   console.log("here are our clients ", clients)
   socket.on('setup', (id) => {
-    if (clients[id]) {
-      console.log("clients[id] already exist")
-      clients[id].disconnect();
-      delete clients[id];
-    }
+    // if (clients[id]) {
+    //   console.log("clients[id] already exist")
+    //   clients[id].disconnect();
+    //   delete clients[id];
+    // }
     clients[id] = socket;
     console.log(id);
     console.log('hello')

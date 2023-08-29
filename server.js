@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const app = require('./app');
+const { deleteMany } = require('./models/messageModel');
 process.on('uncaughtException', (err) => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.log(err.name, err.message);
@@ -86,10 +87,10 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (id) => {
+    delete clients[id]
     console.log(`Client disconnected: ${socket.id}`);
   });
-
 })
 
 

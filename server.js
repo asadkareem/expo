@@ -45,19 +45,19 @@ const io = require('socket.io')(server, {
   cors: {
     origin: '*',
   },
+  pingTimeout: 60000
 });
 
 var clients = {}
+
 io.on('connection', (socket) => {
   const numberOfProperties = Object.keys(clients).length
   console.log(numberOfProperties)
   console.log("here are our clients ", clients)
   socket.on('setup', (id) => {
-    // if (clients[id]) {
-    //   console.log("clients[id] already exist")
-    //   clients[id].disconnect();
-    //   delete clients[id];
-    // }
+    if (clients[id]) {
+      delete clients[id];
+    }
     clients[id] = socket;
     console.log(id);
     console.log('hello')
@@ -94,10 +94,10 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('disconnect', (id) => {
-    delete clients[id]
-    console.log(`Client disconnected: ${socket.id}`);
-  });
+  // socket.on('disconnect', (id) => {
+  //   delete clients[id]
+  //   console.log(`Client disconnected: ${socket.id}`);
+  // });
 })
 
 

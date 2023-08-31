@@ -32,7 +32,6 @@ process.on('unhandledRejection', (err) => {
   });
 });
 
-//all of the roomsId are seletd chatId
 
 process.on('SIGTERM', () => {
   console.log('sigterm received shutting down gracefully');
@@ -69,6 +68,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('new message', (newMessage) => {
+    console.log(newMessage, typeof newMessage)
     const newMessageRecieved = JSON.parse(newMessage).message
     if (newMessageRecieved?.image) {
       delete newMessageRecieved.content;

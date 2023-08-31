@@ -68,8 +68,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('new message', (newMessage) => {
-    console.log(newMessage, typeof newMessage)
-    const newMessageRecieved = JSON.parse(newMessage).message
+    const newMessageRecieved = newMessage.message
     if (newMessageRecieved?.image) {
       delete newMessageRecieved.content;
     }

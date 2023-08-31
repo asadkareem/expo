@@ -48,34 +48,36 @@ const io = require('socket.io')(server, {
   pingTimeout: 60000
 });
 
-var clients = {}
+var clients = {
 
+}
 io.on('connection', (socket) => {
   const numberOfProperties = Object.keys(clients).length
+  console.log("*****************************************")
   console.log(numberOfProperties)
-  console.log("here are our clients ", clients)
+
   socket.on('setup', (id) => {
     if (clients[id]) {
       delete clients[id];
     }
+    socket.data.userId = id;
     clients[id] = socket;
-    console.log(id);
-    console.log('hello')
+    const numberOfProperties = Object.keys(clients).length
+    console.log(numberOfProperties)
     console.log(clients)
     socket.emit('connected', id);
   });
 
-  socket.on('new message', (newMessageRecieved) => {
-    if (newMessageRecieved.image) {
+  socket.on('new message', (newMessage) => {
+    const newMessageRecieved = JSON.parse(newMessage).message
+    if (newMessageRecieved?.image) {
       delete newMessageRecieved.content;
     }
     console.log("new message got hit")
-    console.log(newMessageRecieved);
     var chat = newMessageRecieved.chat;
     if (!chat.users) return console.log('chat.users not defined');
     chat.users.forEach((user) => {
       if (user._id == newMessageRecieved.sender._id) return;
-      console.log(clients[user._id]);
       if (clients[user._id]) {
         clients[user._id].emit('message recieved', newMessageRecieved);
       }

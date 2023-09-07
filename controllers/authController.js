@@ -13,7 +13,7 @@ const signToken = (id) => {
   });
 };
 
-const createSendToken = (user ,statusCode, req, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
   const cookieOptions = {
     expires: new Date(
@@ -24,11 +24,11 @@ const createSendToken = (user ,statusCode, req, res) => {
   };
 
   res.cookie('jwt', token, cookieOptions);
-  
+
   // Remove password from output
   user.password = undefined;
- 
-  
+
+
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -42,7 +42,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
-    schoolName: req.body.schoolName,
+    catagory: req.body.catagory,
     contact: req.body.contact,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
@@ -52,7 +52,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 //login the user
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password,fcm_token } = req.body;
+  const { email, password, fcm_token } = req.body;
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));

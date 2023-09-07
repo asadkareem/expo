@@ -15,9 +15,9 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: [validator.isEmail, 'Please prove a valid email'],
   },
-  schoolName: {
+  catagory: {
     type: String,
-    // required: [true, 'Please provide a your schoolName'],
+    required: [true, 'Please provide a your catagory'],
   },
   contact: {
     type: String,
@@ -64,8 +64,8 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: '2023-06-02T00:00:00.000Z',
   },
-  fcm_token:{
-    type:String
+  fcm_token: {
+    type: String
   },
   passwordChangedAt: Date,
   passwordResetToken: String,

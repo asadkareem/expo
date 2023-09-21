@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
   },
   catagory: {
     type: String,
+    enum: ['General Education', 'Language', 'Professional'],
     required: [true, 'Please provide a your catagory'],
   },
   contact: {

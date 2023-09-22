@@ -12,6 +12,9 @@ const lectureSchema = new mongoose.Schema({
     type: String,
     required: [true, 'there must be a video'],
   },
+  thumbNail: {
+    type: String,
+  },
   class: {
     type: String,
     required: true,

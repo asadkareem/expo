@@ -6,6 +6,8 @@ const router = express.Router();
 const upload = multer({ dest: 'uplaod/' });
 
 router.route('/getvideo').get(lectureController.getFileFromS3);
+router.route('/thumbNail').get(lectureController.getImageFromS3);
+
 router.use(authController.protect);
 router.route('/').get(lectureController.getAlllecture);
 router.route('/:id').get(lectureController.getlecture);
@@ -16,9 +18,10 @@ router
 router
   .route('/:id')
   .patch(
-    upload.single('lecture'),
-    lectureController.lectureUpdateMiddleware,
-    lectureController.updatelecture
+    upload.single('thumbNail'),
+    lectureController.thumbNailMiddleware,
   )
   .delete(lectureController.deletelecture);
+
+
 module.exports = router;

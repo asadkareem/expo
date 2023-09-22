@@ -4,6 +4,9 @@ const pastPaperSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  title: {
+    type: String
+  },
   year: {
     type: String,
     required: true,

@@ -57,8 +57,9 @@ if (process.env.NODE_ENV == 'development') {
 // app.use('/api', limiter);
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 //urlencoding to get teh data from the forms
-app.use(bodyParser.urlencoded({ extended: false }));
 //serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());

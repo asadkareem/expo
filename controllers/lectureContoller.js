@@ -35,6 +35,10 @@ const uploadFile = (file) => {
     Key: file.filename,
   };
   return s3.upload(uploadParams).promise();
+
+
+
+
 };
 exports.lectureMiddleware = catchAsync(async (req, res, next) => {
   // Check if file is uploaded
@@ -44,6 +48,14 @@ exports.lectureMiddleware = catchAsync(async (req, res, next) => {
 
   const result = await uploadFile(req.file);
   console.log(result);
+
+  fs.unlink(req.file.path, (err) => {
+    if (err) {
+      console.error(`Error deleting file: ${err}`);
+    } else {
+      console.log(`File has been deleted.`);
+    }
+  });
   req.body.lectureLink = `${req.protocol}://${req.get(
     'host'
   )}/api/v1/lectures/getvideo?key=${result.Key}`;

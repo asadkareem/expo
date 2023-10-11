@@ -27,38 +27,15 @@ const getFileStream = (fileKey) => {
   return s3.getObject(downloadParams).createReadStream();
 };
 //uplaod the file
-const uploadFile = (file) => {
-  const fileStream = fs.createReadStream(file.path);
-  const uploadParams = {
-    Bucket: 'expolearn',
-    Body: fileStream,
-    Key: file.filename,
-  };
-  return s3.upload(uploadParams).promise();
 
-
-
-
-};
 exports.lectureMiddleware = catchAsync(async (req, res, next) => {
-  // Check if file is uploaded
+
   if (!req.file) {
     return next(new AppError('you must upload the lecture', 404));
   }
-
-  const result = await uploadFile(req.file);
-  console.log(result);
-
-  fs.unlink(req.file.path, (err) => {
-    if (err) {
-      console.error(`Error deleting file: ${err}`);
-    } else {
-      console.log(`File has been deleted.`);
-    }
-  });
   req.body.lectureLink = `${req.protocol}://${req.get(
     'host'
-  )}/api/v1/lectures/getvideo?key=${result.Key}`;
+  )}/api/v1/lectures/getvideo?key=${req.file.key}`;
   const doc = await lecture.create(req.body);
   res.status(201).json({
     status: 'success',
@@ -91,30 +68,92 @@ exports.thumbNailMiddleware = catchAsync(async (req, res, next) => {
   });
 });
 
+// exports.getFileFromS3 = (req, res) => {
+//   const bucketName = 'expolearn';
+//   const key = req.query.key;
+
+//   const params = {
+//     Bucket: bucketName,
+//     Key: key,
+//   };
+
+//   const fileStream = s3.getObject(params).createReadStream();
+
+//   fileStream.on('error', (err) => {
+//     console.error('Error retrieving file from Amazon S3:', err);
+//     res.status(500).json({ error: 'Failed to retrieve file from Amazon S3' });
+//   });
+
+//   res.type('video/mp4');
+//   fileStream.pipe(res);
+
+//   res.on('close', () => {
+//     // Handle the closure of the response
+//     fileStream.destroy(); // Stop the file stream explicitly
+//   });
+// };
 exports.getFileFromS3 = (req, res) => {
   const bucketName = 'expolearn';
   const key = req.query.key;
-
   const params = {
     Bucket: bucketName,
     Key: key,
   };
 
-  const fileStream = s3.getObject(params).createReadStream();
+  const headParams = {
+    Bucket: bucketName,
+    Key: key,
+  };
 
-  fileStream.on('error', (err) => {
-    console.error('Error retrieving file from Amazon S3:', err);
-    res.status(500).json({ error: 'Failed to retrieve file from Amazon S3' });
-  });
+  // Get the file size for the requested S3 object to calculate the Content-Length
+  s3.headObject(headParams, (err, metadata) => {
+    if (err) {
+      console.error('Error retrieving file metadata from Amazon S3:', err);
+      res.status(500).json({ error: 'Failed to retrieve file metadata from Amazon S3' });
+      return;
+    }
 
-  res.type('video/mp4');
-  fileStream.pipe(res);
+    const fileSize = metadata.ContentLength;
+    const rangeHeader = req.headers.range;
 
-  res.on('close', () => {
-    // Handle the closure of the response
-    fileStream.destroy(); // Stop the file stream explicitly
+    if (rangeHeader) {
+      const parts = rangeHeader.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0]);
+      const end = parts[1] ? parseInt(parts[1]) : fileSize - 1;
+
+      const chunkSize = end - start + 1;
+      params.Range = `bytes=${start}-${end}`;
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+      res.setHeader('Content-Length', chunkSize);
+      res.setHeader('Content-Type', 'video/mp4');
+      res.status(206); // 206 Partial Content
+
+      const fileStream = s3.getObject(params).createReadStream();
+
+      fileStream.on('error', (err) => {
+        console.error('Error retrieving file from Amazon S3:', err);
+        res.status(500).json({ error: 'Failed to retrieve file from Amazon S3' });
+      });
+
+      fileStream.pipe(res);
+    } else {
+      // No range header provided, so send the entire file
+      res.setHeader('Content-Length', fileSize);
+      res.setHeader('Content-Type', 'video/mp4');
+      res.status(200);
+
+      const fileStream = s3.getObject(params).createReadStream();
+
+      fileStream.on('error', (err) => {
+        console.error('Error retrieving file from Amazon S3:', err);
+        res.status(500).json({ error: 'Failed to retrieve file from Amazon S3' });
+      });
+
+      fileStream.pipe(res);
+    }
   });
 };
+
 exports.getImageFromS3 = (req, res) => {
   const bucketName = 'expolearn';
   const key = req.query.key;

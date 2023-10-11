@@ -5,6 +5,8 @@ const multer = require('multer');
 const router = express.Router();
 const upload = multer({ dest: 'uplaod/' });
 const { S3Client } = require('@aws-sdk/client-s3')
+const fileparser = require('./../controllers/fileparser');
+const lecture = require('./../models/lectureModel');
 const multerS3 = require('multer-s3')
 router.route('/getvideo').get(lectureController.getFileFromS3);
 router.route('/thumbNail').get(lectureController.getImageFromS3);
@@ -42,7 +44,7 @@ router.route('/').post(async (req, res, next) => {
 
     // Use the parsefile function to upload the file to S3
     // console.log(req.body)
-    const uploadedFile = await parsefile(req);
+    const uploadedFile = await fileparser(req);
 
 
     // Construct the lectureLink using the uploadedFile data

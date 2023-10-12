@@ -8,47 +8,47 @@ const secretAccessKey = "qaytJiGErUdIf3G/I+ofjUnczHKXD2cdVSOzNNvi";
 const region = "eu-north-1";
 const Bucket = "expolearn";
 
-
-
-const parsefile = async (req) => {
+const parseChatImage = async (req) => {
     return new Promise((resolve, reject) => {
         let field;
         let options = {
             maxFileSize: 10737418240,
             allowEmptyFiles: false
         }
-
         const form = formidable(options);
+        // Flag to check if any file is uploaded
+        let fileUploaded = false;
         // method accepts the request and a callback.
         form.parse(req, (err, fields, files) => {
             field = fields;
-            // console.log(fields, "====", files)
+            if (Object.keys(files).length > 0) {
+                fileUploaded = true;
+            } else {
+                resolve(fields);
+            }
+            console.log(fields, "====", files)
         });
-
         form.on('error', error => {
             reject(error.message)
         })
-
         form.on('data', data => {
             if (data.name === "complete") {
-                // let statuscode = data.value['$metadata']?.httpStatusCode || 200;
-                resolve(data.value);
+                // Let's only resolve when a file is uploaded
+                if (fileUploaded) {
+                    resolve(data.value);
+                }
             }
         })
-
         form.on('fileBegin', (formName, file) => {
-
             file.open = async function () {
                 this._writeStream = new Transform({
                     transform(chunk, encoding, callback) {
                         callback(null, chunk)
                     }
                 })
-
                 this._writeStream.on('error', e => {
                     form.emit('error', e)
                 });
-
                 // upload to S3
                 new Upload({
                     client: new S3Client({
@@ -61,7 +61,7 @@ const parsefile = async (req) => {
                     params: {
                         ACL: 'public-read',
                         Bucket,
-                        ContentType: 'audio/mpeg',
+                        ContentType: 'image/png',
                         Key: `${Date.now().toString()}`,
                         Body: this._writeStream
                     },
@@ -72,13 +72,12 @@ const parsefile = async (req) => {
                 })
                     .done()
                     .then(data => {
-                        field.lectureLink = data.Location;
-                        form.emit('data', { name: "complete", value: { field } });
+                        field.image = data.Location;
+                        form.emit('data', { name: "complete", value: field });
                     }).catch((err) => {
                         form.emit('error', err);
                     })
             }
-
             file.end = function (cb) {
                 this._writeStream.on('finish', () => {
                     this.emit('end')
@@ -90,4 +89,5 @@ const parsefile = async (req) => {
     })
 }
 
-module.exports = parsefile;
+
+module.exports = parseChatImage;

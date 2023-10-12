@@ -6,6 +6,7 @@ const router = express.Router();
 const upload = multer({ dest: 'uplaod/' });
 const { S3Client } = require('@aws-sdk/client-s3')
 const fileparser = require('./../controllers/fileparser');
+const parseChatImage = require("./../controllers/chatimageparser")
 const lecture = require('./../models/lectureModel');
 const multerS3 = require('multer-s3')
 router.route('/getvideo').get(lectureController.getFileFromS3);
@@ -37,6 +38,8 @@ router.use(authController.restrictTo('admin'));
 // router
 //   .route('/')
 //   .post(upload.single('lecture'), lectureController.lectureMiddleware);
+
+//********don't-touch-iit******** */
 router.route('/').post(async (req, res, next) => {
 
   try {
@@ -67,12 +70,34 @@ router.route('/').post(async (req, res, next) => {
     }) // Adjust the status code as needed
   }
 });
+
+//*********************************************** */
+//*********************************************** */
+//*********************************************** */
+router
+  .route('/:id').patch(async (req, res, next) => {
+    try {
+      const data = await parseChatImage(req);
+      if (data.image) {
+        data.thumbNail = data.image
+      }
+      const doc = await lecture.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+        runValidators: true,
+      });
+      res.status(201).json({
+        status: 'success',
+        data: doc
+      });
+    } catch (error) {
+      res.status(400).json({
+        message: "An error occurred.",
+        error: error,
+      })
+    }
+  });
 router
   .route('/:id')
-  .patch(
-    upload.single('thumbNail'),
-    lectureController.thumbNailMiddleware,
-  )
   .delete(lectureController.deletelecture);
 
 

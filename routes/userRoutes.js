@@ -23,7 +23,7 @@ router.use(authContoller.protect);
 router.get('/me', userController.getMe, userController.getUser);
 router.delete('/deleteMe', userController.deleteMe);
 router.patch('/updateMyPassword', authContoller.updatePassword);
-router.patch('/updateMe', upload.single('photo'), userController.updateMe);
+router.patch('/updateMe', userController.updateMe);
 router.patch('/subScription', userController.updateSubScription);
 //routes restricted to admin
 router.route('/').get(userController.getAllUsers);

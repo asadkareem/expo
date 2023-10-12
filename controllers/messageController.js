@@ -4,6 +4,7 @@ const Message = require('./../models/messageModel');
 const Chat = require('./../models/chatModel');
 const User = require('./../models/userModel');
 const S3 = require('aws-sdk/clients/s3');
+const parseChatImage = require("./chatimageparser")
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const s3 = new S3({
@@ -22,8 +23,16 @@ const uploadFile = (file) => {
   };
   return s3.upload(uploadParams).promise();
 };
+
+
+
+
+
+
+
 exports.sendMessage = catchAsync(async (req, res, next) => {
-  const { chatId, content, time } = req.body;
+
+  const { chatId, content, time, image } = await parseChatImage(req);
   if (!chatId) {
     return next(new AppError('Please Provide Message And Chat Id', 400));
   }
@@ -32,12 +41,8 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
     chat: chatId,
     time: time,
   };
-  if (req.file) {
-    const imageResult = await uploadFile(req.file);
-    req.body.image = `${req.protocol}://${req.get(
-      'host'
-    )}/api/v1/users/getImage?key=${imageResult.Key}`;
-    newMessage.image = req.body.image;
+  if (image) {
+    newMessage.image = image;
   } else {
     newMessage.content = content;
   }
@@ -209,49 +214,49 @@ admin.initializeApp({
 
 
 
-exports.sendPushNotification=async(req,res)=>{
-const message = {
-  notification: {
-  title: req.body.title,
-  body: req.body.message,
-  },
-  token: req.body.fcm_token,
-  data: {
-    volume: "3.21.15",
-    contents: "http://www.news-magazine.com/world-week/21659772"
-  },
-  android: {
-    priority: "high",
-   
-  },
-  webpush: {
-    headers: {
-      Urgency: "high"
-    }
-  },
-  apns: {
-    headers: {
-      'apns-priority': '10'
-    }
-  },
-};
-  
+exports.sendPushNotification = async (req, res) => {
+  const message = {
+    notification: {
+      title: req.body.title,
+      body: req.body.message,
+    },
+    token: req.body.fcm_token,
+    data: {
+      volume: "3.21.15",
+      contents: "http://www.news-magazine.com/world-week/21659772"
+    },
+    android: {
+      priority: "high",
+
+    },
+    webpush: {
+      headers: {
+        Urgency: "high"
+      }
+    },
+    apns: {
+      headers: {
+        'apns-priority': '10'
+      }
+    },
+  };
+
   admin.messaging().send(message).then((response) => {
     res.status(200).json({
-      success : true,
-      response:response
+      success: true,
+      response: response
     })
-  console.log('Successfully sent message: ', response);
+    console.log('Successfully sent message: ', response);
   })
-  .catch((error) => {
-    res.status(500).json({
-      status:"error",
-      response:error
-    })
-  console.log('Error sending message: ', error);
-  });
+    .catch((error) => {
+      res.status(500).json({
+        status: "error",
+        response: error
+      })
+      console.log('Error sending message: ', error);
+    });
 
-  }
+}
 
 
 

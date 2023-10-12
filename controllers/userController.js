@@ -2,6 +2,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
+const parseChatImage = require("./chatimageparser");
 const AppError = require('./../utils/appError');
 const factory = require('./handlerFactory');
 const S3 = require('aws-sdk/clients/s3');
@@ -73,23 +74,12 @@ const uploadFile = (file) => {
   return s3.upload(uploadParams).promise();
 };
 exports.updateMe = catchAsync(async (req, res, next) => {
-  // 1) Create error if user POSTs password data
-  if (req.body.password || req.body.passwordConfirm) {
-    return next(
-      new AppError(
-        'This route is not for password updates. Please use /updateMyPassword.',
-        400
-      )
-    );
-  }
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
-  const filteredBody = req.body;
-  if (req.file) {
-    const imageResult = await uploadFile(req.file);
-    filteredBody.photo = `${req.protocol}://${req.get(
-      'host'
-    )}/api/v1/users/getImage?key=${imageResult.Key}`;
+  const filteredBody = await parseChatImage(req);
+  const imageUrl = filteredBody.image;
+  if (imageUrl) {
+    filteredBody.photo = imageUrl
   }
 
   // 3) Update user document

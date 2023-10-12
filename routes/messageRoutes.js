@@ -6,7 +6,7 @@ const upload = multer({ dest: 'uplaod/' });
 const router = express.Router();
 
 router.use(authContoller.protect);
-router.route('/').post(upload.single('image'), messageController.sendMessage);
+router.route('/').post(messageController.sendMessage);
 router
   .route('/userSentMsgCountZero')
   .post(messageController.userSentMsgCountZero);

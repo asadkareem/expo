@@ -61,7 +61,7 @@ const parsefile = async (req) => {
                     params: {
                         ACL: 'public-read',
                         Bucket,
-                        ContentType: 'audio/mpeg',
+                        ContentType: 'video/mp4',
                         Key: `${Date.now().toString()}`,
                         Body: this._writeStream
                     },

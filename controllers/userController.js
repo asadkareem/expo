@@ -44,14 +44,16 @@ exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
     .toFile(`public/img/users/${req.file.filename}`);
   next();
 });
-
 exports.deleteMe = catchAsync(async (req, res, next) => {
-  await User.findByIdAndUpdate(req.user.id, { active: false });
+  // Use deleteOne to remove the user by ID
+  await User.deleteOne({ _id: req.user.id });
+
   res.status(204).json({
     status: 'success',
     data: null,
   });
 });
+
 
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;

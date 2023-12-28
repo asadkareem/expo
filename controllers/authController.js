@@ -63,16 +63,29 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password or account not found', 401));
   }
+  // Check if the device ID (fcm_token) is already associated with the user
+  if (user.deviceIds && user.deviceIds !== fcm_token) {
+    return next(new AppError('User already logged in on this device', 401));
+  }
   user.fcm_token = fcm_token;
+  if (!user.deviceIds) {
+    user.deviceIds = user.fcm_token
+    await user.save({ validateBeforeSave: false })
+  }
 
   // 3) If everything ok, send token to client
   createSendToken(user, 200, req, res);
 });
 //logou teh user
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
+  const user = await User.findById(req.user.id)
+  user.deviceIds = null
+  await user.save({ validateBeforeSave: false });
+  req.user.deviceIds = undefined;
   res.cookie('jwt', '', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
+
   });
   res.status(200).json({ status: 'Logout successful' });
 };

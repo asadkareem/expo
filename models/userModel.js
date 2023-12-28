@@ -68,6 +68,7 @@ const userSchema = new mongoose.Schema({
   fcm_token: {
     type: String
   },
+  deviceIds: String,
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
